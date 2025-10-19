@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الامتحانات الإلكترونية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6c5ce7;
+            --primary-light: #a29bfe;
+            --secondary-color: #0984e3;
+            --accent-color: #fd79a8;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --danger-color: #d63031;
+            --light-color: #f8f9fa;
+            --dark-color: #2d3436;
+            --gray-color: #636e72;
+            --light-gray: #dfe6e9;
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+            --box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-color);
+            min-height: 100vh;
+        }
+
+        /* شريط التنقل المودرن */
+        .navbar {
+            background: white;
+            color: var(--dark-color);
+            padding: 15px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--box-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--light-gray);
+            transition: var(--transition);
+        }
+
+        .user-info .avatar:hover {
+            transform: scale(1.1);
+            border-color: var(--primary-color);
+        }
+
+        /* محتوى الصفحة */
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 30px;
+        }
+
+        /* بطاقة معلومات الامتحان */
+        .exam-header {
+            background: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .exam-title {
+            font-size: 1.6rem;
+            color: var(--dark-color);
+            font-weight: 700;
+            position: relative;
+        }
+
+        .exam-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            right: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+        }
+
+        .exam-info {
+            display: flex;
+            gap: 25px;
+        }
+
+        .exam-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray-color);
+            font-size: 0.95rem;
+        }
+
+        .exam-info-item i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .timer {
+            background: linear-gradient(135deg, var(--danger-color), #ff7675);
+            color: white;
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.2);
+        }
+
+        .timer i {
+            font-size: 0.9rem;
+        }
+
+        /* شريط التقدم المودرن */
+        .progress-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background-color: var(--light-gray);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            width: 10%;
+            border-radius: 5px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background: linear-gradient(
+                to right, 
+                rgba(255,255,255,0) 0%,
+                rgba(255,255,255,0.6) 50%,
+                rgba(255,255,255,0) 100%
+            );
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            color: var(--gray-color);
+            font-size: 0.95rem;
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        /* بطاقة السؤال المودرن */
+        .question-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+            border: 1px solid rgba(108, 92, 231, 0.1);
+            transition: var(--transition);
+        }
+
+        .question-card:hover {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .question-number {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            display: inline-block;
+            padding: 5px 12px;
+            background-color: rgba(108, 92, 231, 0.1);
+            border-radius: 30px;
+        }
+
+        .question-text {
+            font-size: 1.25rem;
+            margin-bottom: 25px;
+            line-height: 1.7;
+            color: var(--dark-color);
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 18px 20px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .option:hover {
+            background-color: rgba(108, 92, 231, 0.03);
+            border-color: var(--primary-light);
+            transform: translateX(-5px);
+        }
+
+        .option.selected {
+            background-color: rgba(108, 92, 231, 0.08);
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.1);
+        }
+
+        .option input {
+            display: none;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .option-circle {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--gray-color);
+            border-radius: 50%;
+            margin-left: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-circle {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+        }
+
+        .option.selected .option-circle::after {
+            content: '';
+            display: block;
+            width: 10px;
+            height: 10px;
+            background-color: white;
+            border-radius: 50%;
+        }
+
+        .option-text {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+
+        /* التنقل بين الأسئلة */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(108, 92, 231, 0.05);
+            transform: translateY(-3px);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #ff7675);
+            color: white;
+            box-shadow: 0 4px 15px rgba(214, 48, 49, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(214, 48, 49, 0.4);
+        }
+
+        /* قائمة الأسئلة المودرن */
+        .questions-list-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 25px;
+        }
+
+        .questions-list-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--gray-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .questions-list-title i {
+            color: var(--primary-color);
+        }
+
+        .questions-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .question-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border: 1px solid var(--light-gray);
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+            color: var(--gray-color);
+        }
+
+        .question-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-btn.answered {
+            background-color: var(--success-color);
+            color: white;
+            border-color: var(--success-color);
+        }
+
+        .question-btn.current {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-color: var(--primary-color);
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(108, 92, 231, 0.3);
+        }
+
+        .question-btn.marked {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* زر التسليم */
+        .submit-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        /* نافذة التأكيد المودرنة */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(45, 52, 54, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
+            transform: translateY(-30px);
+            transition: var(--transition);
+            border-top: 5px solid var(--primary-color);
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: var(--dark-color);
+            text-align: center;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            right: 50%;
+            transform: translateX(50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+        }
+
+        .modal-body {
+            margin-bottom: 30px;
+            line-height: 1.7;
+            color: var(--gray-color);
+            text-align: center;
+        }
+
+        .modal-body p {
+            margin-bottom: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* التكيف مع الأجهزة المحمولة */
+        @media (max-width: 992px) {
+            .container {
+                padding: 0 20px;
+            }
+            
+            .exam-header {
+                flex-direction: column;
+                gap: 20px;
+                align-items: flex-start;
+            }
+            
+            .exam-info {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .exam-title {
+                font-size: 1.3rem;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .option-text {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .question-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .modal {
+                padding: 30px 20px;
+            }
+            
+            .modal-footer {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .modal-footer .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- شريط التنقل المودرن -->
+    <nav class="navbar">
+        <div class="logo">نظام الامتحانات</div>
+        <div class="user-info">
+            <span>أحمد محمد</span>
+            <img src="https://ui-avatars.com/api/?name=أحمد+محمد&background=6c5ce7&color=fff" alt="صورة المستخدم" class="avatar">
+        </div>
+    </nav>
+
+    <!-- محتوى الصفحة -->
+    <div class="container">
+        <!-- معلومات الامتحان -->
+        <div class="exam-header">
+            <h1 class="exam-title">امتحان مادة الرياضيات - الفصل الأول</h1>
+            <div class="exam-info">
+                <div class="exam-info-item">
+                    <i class="fas fa-book-open"></i>
+                    <span>20 سؤال</span>
+                </div>
+                <div class="exam-info-item">
+                    <i class="fas fa-clock"></i>
+                    <span class="timer"><i class="fas fa-hourglass-half"></i> 44:32</span>
+                </div>
+                <div class="exam-info-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>15/06/2023</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- شريط التقدم -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar" style="width: 10%;"></div>
+            </div>
+            <div class="progress-text">
+                <span>تم الإجابة على 2 من 20 سؤال</span>
+                <span class="progress-percentage">10% مكتمل</span>
+            </div>
+        </div>
+
+        <!-- بطاقة السؤال -->
+        <div class="question-card">
+            <div class="question-number">السؤال 3 من 20</div>
+            <div class="question-text">
+                إذا كانت س = 5، فما قيمة العبارة التالية: 3س² - 2س + 7؟
+            </div>
+            <div class="options-container">
+                <label class="option">
+                    <input type="radio" name="question-3" value="a">
+                    <span class="option-label">
+                        <span class="option-circle"></span>
+                        <span class="option-text">72</span>
+                    </span>
+                </label>
+                <label class="option selected">
+                    <input type="radio" name="question-3" value="b" checked>
+                    <span class="option-label">
+                        <span class="option-circle"></span>
+                        <span class="option-text">82</span>
+                    </span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="question-3" value="c">
+                    <span class="option-label">
+                        <span class="option-circle"></span>
+                        <span class="option-text">92</span>
+                    </span>
+                </label>
+                <label class="option">
+                    <input type="radio" name="question-3" value="d">
+                    <span class="option-label">
+                        <span class="option-circle"></span>
+                        <span class="option-text">102</span>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- التنقل بين الأسئلة -->
+        <div class="navigation-buttons">
+            <button class="btn btn-outline" id="prev-btn">
+                <i class="fas fa-arrow-right"></i> السابق
+            </button>
+            <div>
+                <button class="btn btn-outline" id="mark-btn">
+                    <i class="fas fa-flag"></i> وضع علامة
+                </button>
+                <button class="btn btn-primary" id="next-btn">
+                    التالي <i class="fas fa-arrow-left"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- قائمة الأسئلة -->
+        <div class="questions-list-container">
+            <div class="questions-list-title">
+                <i class="fas fa-list-ol"></i>
+                <span>قائمة الأسئلة</span>
+            </div>
+            <div class="questions-list">
+                <button class="question-btn answered">1</button>
+                <button class="question-btn answered">2</button>
+                <button class="question-btn current">3</button>
+                <button class="question-btn">4</button>
+                <button class="question-btn">5</button>
+                <button class="question-btn">6</button>
+                <button class="question-btn">7</button>
+                <button class="question-btn">8</button>
+                <button class="question-btn">9</button>
+                <button class="question-btn">10</button>
+                <button class="question-btn">11</button>
+                <button class="question-btn">12</button>
+                <button class="question-btn">13</button>
+                <button class="question-btn marked">14</button>
+                <button class="question-btn">15</button>
+                <button class="question-btn">16</button>
+                <button class="question-btn">17</button>
+                <button class="question-btn">18</button>
+                <button class="question-btn">19</button>
+                <button class="question-btn">20</button>
+            </div>
+        </div>
+
+        <!-- زر التسليم -->
+        <div class="submit-container">
+            <button class="btn btn-danger" id="submit-btn">
+                <i class="fas fa-paper-plane"></i> تسليم الامتحان
+            </button>
+        </div>
+    </div>
+
+    <!-- نافذة التأكيد عند التسليم -->
+    <div class="modal-overlay" id="confirm-modal">
+        <div class="modal">
+            <div class="modal-header">تأكيد التسليم</div>
+            <div class="modal-body">
+                <p>هل أنت متأكد من رغبتك في تسليم الامتحان؟</p>
+                <p>لقد أجبت على <strong>2</strong> من <strong>20</strong> سؤالاً.</p>
+                <p>بعد التسليم لا يمكنك العودة إلى الامتحان مرة أخرى.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cancel-submit">إلغاء</button>
+                <button class="btn btn-danger" id="confirm-submit">تأكيد التسليم</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // متغيرات النظام
+        const totalQuestions = 20;
+        let currentQuestion = 3;
+        let answeredQuestions = 2;
+        let markedQuestions = [14];
+        let timerInterval;
+        let timeLeft = 44 * 60 + 32; // 44 دقيقة و 32 ثانية
+
+        // عناصر DOM
+        const progressBar = document.getElementById('progress-bar');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const markBtn = document.getElementById('mark-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const confirmModal = document.getElementById('confirm-modal');
+        const cancelSubmit = document.getElementById('cancel-submit');
+        const confirmSubmit = document.getElementById('confirm-submit');
+        const timerElement = document.querySelector('.timer');
+        const questionBtns = document.querySelectorAll('.question-btn');
+
+        // تحديث شريط التقدم
+        function updateProgress() {
+            const progress = (answeredQuestions / totalQuestions) * 100;
+            progressBar.style.width = `${progress}%`;
+            document.querySelector('.progress-text span:first-child').textContent = 
+                `تم الإجابة على ${answeredQuestions} من ${totalQuestions} سؤال`;
+            document.querySelector('.progress-percentage').textContent = 
+                `${Math.round(progress)}% مكتمل`;
+        }
+
+        // تحديث العداد
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerElement.innerHTML = `<i class="fas fa-hourglass-half"></i> ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                submitExam();
+            } else {
+                timeLeft--;
+            }
+        }
+
+        // تغيير السؤال الحالي
+        function changeQuestion(newQuestion) {
+            if (newQuestion < 1 || newQuestion > totalQuestions) return;
+            
+            // تحديث السؤال الحالي
+            document.querySelector('.question-btn.current').classList.remove('current');
+            currentQuestion = newQuestion;
+            document.querySelector(`.question-btn:nth-child(${currentQuestion})`).classList.add('current');
+            
+            // تحديث رقم السؤال
+            document.querySelector('.question-number').textContent = `السؤال ${currentQuestion} من ${totalQuestions}`;
+            
+            // تحديث حالة الأزرار
+            prevBtn.disabled = currentQuestion === 1;
+            nextBtn.disabled = currentQuestion === totalQuestions;
+            
+            // هنا يجب تحميل السؤال الجديد من الخادم
+            // loadQuestion(currentQuestion);
+        }
+
+        // وضع علامة على السؤال
+        function toggleMarkQuestion() {
+            const questionBtn = document.querySelector(`.question-btn:nth-child(${currentQuestion})`);
+            const isMarked = questionBtn.classList.contains('marked');
+            
+            if (isMarked) {
+                questionBtn.classList.remove('marked');
+                markedQuestions = markedQuestions.filter(q => q !== currentQuestion);
+            } else {
+                questionBtn.classList.add('marked');
+                markedQuestions.push(currentQuestion);
+            }
+        }
+
+        // تسليم الامتحان
+        function submitExam() {
+            clearInterval(timerInterval);
+            alert('تم تسليم الامتحان بنجاح!');
+            // هنا يجب إرسال الإجابات إلى الخادم
+            // submitAnswers();
+        }
+
+        // أحداث النقر
+        prevBtn.addEventListener('click', () => changeQuestion(currentQuestion - 1));
+        nextBtn.addEventListener('click', () => changeQuestion(currentQuestion + 1));
+        markBtn.addEventListener('click', toggleMarkQuestion);
+        submitBtn.addEventListener('click', () => confirmModal.classList.add('active'));
+        cancelSubmit.addEventListener('click', () => confirmModal.classList.remove('active'));
+        confirmSubmit.addEventListener('click', submitExam);
+
+        // الانتقال إلى سؤال من قائمة الأسئلة
+        questionBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => changeQuestion(index + 1));
+        });
+
+        // اختيار إجابة
+        document.querySelectorAll('.option').forEach(option => {
+            option.addEventListener('click', function() {
+                // إذا لم يكن السؤال مجابًا من قبل، نزيد العداد
+                const questionBtn = document.querySelector(`.question-btn:nth-child(${currentQuestion})`);
+                if (!questionBtn.classList.contains('answered')) {
+                    answeredQuestions++;
+                    questionBtn.classList.add('answered');
+                    updateProgress();
+                }
+                
+                // تحديد الإجابة المختارة
+                document.querySelectorAll('.option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // بدء العداد
+        timerInterval = setInterval(updateTimer, 1000);
+        updateTimer();
+        updateProgress();
+    </script>
+</body>
+</html>

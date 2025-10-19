@@ -1,0 +1,62 @@
+/* شريط التنقل السفلي - إصدار مضغوط للشاشات الصغيرة */
+.bottom-navbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-gradient-onyx);
+    display: flex;
+    justify-content: space-between; /* تغيير من space-around لتحسين التوزيع */
+    padding: 6px 5px; /* تقليل الحشو بشكل كبير */
+    border-top: 1px solid var(--jet);
+    z-index: 100;
+    box-sizing: border-box;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--light-gray70);
+    transition: var(--transition);
+    padding: 2px 3px; /* تقليل الحشو الداخلي بشكل كبير */
+    border-radius: var(--border-radius);
+    min-width: 0; /* يسمح بانكماش العنصر */
+    flex: 1; /* كل العناصر تأخذ نفس المساحة */
+}
+
+.nav-item.active, .nav-item:hover {
+    color: var(--primary-color);
+    background-color: hsla(0, 0%, 100%, 0.1);
+}
+
+.nav-icon {
+    font-size: 20px; /* حجم مناسب للشاشات الصغيرة */
+    margin-bottom: 2px; /* تقليل المسافة تحت الأيقونة */
+}
+
+.nav-label {
+    font-size: 10px; /* حجم خط أصغر */
+    font-weight: var(--fw500);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* تعديلات للشاشات الصغيرة جداً */
+@media (max-width: 360px) {
+    .bottom-navbar {
+        padding: 4px 2px;
+    }
+    
+    .nav-icon {
+        font-size: 16px;
+        margin-bottom: 1px;
+    }
+    
+    .nav-label {
+        font-size: 9px;
+    }
+}
